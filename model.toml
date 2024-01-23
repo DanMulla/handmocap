@@ -1,0 +1,23 @@
+[landmarks]
+names = ['Wrist', 'CMC', 'MCP1', 'IP1', 'TIP1', 'MCP2', 'PIP2', 'DIP2', 'TIP2', 'MCP3', 'PIP3', 'DIP3',
+		 'TIP3', 'MCP4', 'PIP4', 'DIP4', 'TIP4', 'MCP5', 'PIP5', 'DIP5', 'TIP5']
+
+[joints]
+names = ['MCP2_Flexion', 'PIP2_Flexion', 'DIP2_Flexion', 'MCP3_Flexion', 'PIP3_Flexion', 'DIP3_Flexion',
+		 'MCP4_Flexion', 'PIP4_Flexion', 'DIP4_Flexion', 'MCP5_Flexion', 'PIP5_Flexion', 'DIP5_Flexion']
+landmarks = [['Wrist', 'MCP2', 'PIP2'], ['MCP2', 'PIP2', 'DIP2'], ['PIP2', 'DIP2', 'TIP2'],
+			 ['Wrist', 'MCP3', 'PIP3'], ['MCP3', 'PIP3', 'DIP3'], ['PIP3', 'DIP3', 'TIP3'],
+             ['Wrist', 'MCP4', 'PIP4'], ['MCP4', 'PIP4', 'DIP4'], ['PIP4', 'DIP4', 'TIP4'],
+             ['Wrist', 'MCP5', 'PIP5'], ['MCP5', 'PIP5', 'DIP5'], ['PIP5', 'DIP5', 'TIP5']]
+
+[segments]
+names = ['CAR1', 'MCP1', 'PP1', 'DP1', 'MCP2', 'PP2', 'MP2', 'DP2', 'MCP3', 'PP3', 'MP3', 'DP3', 'MCP4', 'PP4', 'MP4', 'DP4', 'MCP5', 'PP5', 'MP5', 'DP5']
+landmarks = [['Wrist', 'CMC',], ['CMC', 'MCP1'], ['MCP1', 'IP1'], ['IP1', 'TIP1'], 
+			 ['Wrist', 'MCP2'], ['MCP2', 'PIP2'], ['PIP2', 'DIP2'], ['DIP2', 'TIP2'],
+			 ['Wrist', 'MCP3'], ['MCP3', 'PIP3'], ['PIP3', 'DIP3'], ['DIP3', 'TIP3'],
+			 ['Wrist', 'MCP4'], ['MCP4', 'PIP4'], ['PIP4', 'DIP4'], ['DIP4', 'TIP4'],
+			 ['Wrist', 'MCP5'], ['MCP5', 'PIP5'], ['PIP5', 'DIP5'], ['DIP5', 'TIP5']]
+
+[phalanges]
+names = ['Thumb', 'Index', 'Middle', 'Ring', 'Little']
+segments = [['PP1', 'DP1'], ['PP2', 'MP2', 'DP2'], ['PP3', 'MP3', 'DP3'], ['PP4', 'MP4', 'DP4'], ['PP5', 'MP5', 'DP5']]
