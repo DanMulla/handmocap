@@ -5,6 +5,7 @@ import mediapipe as mp
 import numpy as np
 import os
 from pathlib import Path
+import pickle
 import time
 import tkinter as tk
 from tkinter import filedialog
@@ -64,11 +65,13 @@ def run_mediapipe(input_streams, save_images=None):
         cap.set(4, width)
 
     # Create hand key points detector objects for each camera
-    hands = [mp.solutions.hands.Hands(min_detection_confidence=0.50, max_num_hands=1, min_tracking_confidence=0.50)
+    nhands = 2
+    hands = [mp.solutions.hands.Hands(min_detection_confidence=0.50, max_num_hands=nhands, min_tracking_confidence=0.50)
              for cap in caps]
 
     # Containers for detected key points for each camera
-    kpts_cams = [[] for cap in caps]
+    kpts_cam_l = [[] for cap in caps]
+    kpts_cam_r = [[] for cap in caps]
 
     # Initialize frame number
     framenum = 0
@@ -96,19 +99,62 @@ def run_mediapipe(input_streams, save_images=None):
 
         # Access 2D hand landmarks (pixel coordinates) if detected (otherwise [-1, -1])
         for cam, (ret, frame) in enumerate(frames):
+
             if results[cam].multi_hand_landmarks:
-                frame_keypoints = []
-                for hand_landmarks in results[cam].multi_hand_landmarks:
+
+                nhands_detected = len(results[cam].multi_hand_landmarks)
+
+                if nhands_detected == 1:
+                    hand_landmarks = results[cam].multi_hand_landmarks[0]
+                    frame_keypoints = []
                     for p in range(21):
                         pxl_x = int(round(frame.shape[1] * hand_landmarks.landmark[p].x))
                         pxl_y = int(round(frame.shape[0] * hand_landmarks.landmark[p].y))
                         kpts = [pxl_x, pxl_y]
                         frame_keypoints.append(kpts)
-            else:
-                frame_keypoints = [[-1, -1]] * 21
 
-            # Append key points
-            kpts_cams[cam].append(frame_keypoints)
+                    # Check handedness and append key points
+                    # Note: handedness is based on mirror image, so if detected is left then actually a right hand
+                    handedness = results[cam].multi_handedness[0].classification[0].label
+                    if handedness == 'Left':
+                        kpts_cam_r[cam].append(frame_keypoints)
+                        kpts_cam_l[cam].append([[-1, -1]] * 21)
+                    else:
+                        kpts_cam_r[cam].append([[-1, -1]] * 21)
+                        kpts_cam_l[cam].append(frame_keypoints)
+
+                elif nhands_detected == 2:
+
+                    frame_keypoints_l = []
+                    frame_keypoints_r = []
+                    handedness = results[cam].multi_handedness[0].classification[0].label  # Of the first detected hand
+
+                    # Check handedness
+                    if handedness == 'Left':
+                        hand_landmarks_r = results[cam].multi_hand_landmarks[0]
+                        hand_landmarks_l = results[cam].multi_hand_landmarks[1]
+                    else:
+                        hand_landmarks_r = results[cam].multi_hand_landmarks[1]
+                        hand_landmarks_l = results[cam].multi_hand_landmarks[0]
+
+                    for p in range(21):
+                        pxl_x_r = int(round(frame.shape[1] * hand_landmarks_r.landmark[p].x))
+                        pxl_y_r = int(round(frame.shape[0] * hand_landmarks_r.landmark[p].y))
+                        kpts_r = [pxl_x_r, pxl_y_r]
+                        frame_keypoints_r.append(kpts_r)
+
+                        pxl_x_l = int(round(frame.shape[1] * hand_landmarks_l.landmark[p].x))
+                        pxl_y_l = int(round(frame.shape[0] * hand_landmarks_l.landmark[p].y))
+                        kpts_l = [pxl_x_l, pxl_y_l]
+                        frame_keypoints_l.append(kpts_l)
+
+                    # Append key points
+                    kpts_cam_r[cam].append(frame_keypoints_r)
+                    kpts_cam_l[cam].append(frame_keypoints_l)
+
+            else:
+                kpts_cam_r[cam].append([[-1, -1]] * 21)
+                kpts_cam_l[cam].append([[-1, -1]] * 21)
 
             # Draw hand landmarks
             frame.flags.writeable = True
@@ -135,7 +181,7 @@ def run_mediapipe(input_streams, save_images=None):
         cap.release()
 
     # Return 2D hand landmarks
-    return np.array(kpts_cams)
+    return np.array(kpts_cam_l), np.array(kpts_cam_r)
 
 
 # Run code
@@ -167,6 +213,9 @@ if __name__ == '__main__':
     outdir_video = idfolder + '/videos_processed/'
     outdir_data2d = idfolder + '/landmarks/'
 
+    # Flag trials with difference in frame length
+    trials_flagged = []
+
     # Make output directories if they do not exist
     if saveimages is True:
         if not os.path.exists(outdir_images):
@@ -181,10 +230,20 @@ if __name__ == '__main__':
 
         # Identify trial name
         trialname = os.path.basename(trial)
+        print(trialname)
 
         # Gather trial videos
         vidnames = sorted(glob.glob(trial + '/*.mp4'))
         ncams = len(vidnames)
+
+        # Check number of frames
+        framelength = np.zeros(ncams)
+        for vidnum, vid in enumerate(vidnames):
+            framelength[vidnum] = int(cv.VideoCapture(vid).get(cv.CAP_PROP_FRAME_COUNT))
+        frames_diff = max(framelength) - min(framelength)
+        if frames_diff > 1:
+            print('WARNING: Length of videos is different. # of frames: ' + str(frames_diff))
+            trials_flagged.append(trialname)
 
         # Create sub folders for given trial (for each camera) for storing labelled images
         if saveimages is True:
@@ -194,10 +253,11 @@ if __name__ == '__main__':
                     os.mkdir(outdir_images + trialname + '/cam' + str(cam))
 
         # Obtain 2D landmarks from each camera
-        kpts_cam = run_mediapipe(vidnames, save_images=saveimages)
+        kpts_caml, kpts_camr = run_mediapipe(vidnames, save_images=saveimages)
 
         # Save 2D landmarks as np array (ncameras x nframes x 21 landmarks x 2dimension)
-        np.save(outdir_data2d + trialname + '_2Dlandmarks', kpts_cam)
+        np.save(outdir_data2d + trialname + '_2Dlandmarks_left', kpts_caml)
+        np.save(outdir_data2d + trialname + '_2Dlandmarks_right', kpts_camr)
 
         # Create video from 2D labelled images
         if saveimages and savevideo is True:
@@ -213,6 +273,10 @@ if __name__ == '__main__':
                 createvideo(image_folder=imagefolder, extension='.png', fs=30,
                             output_folder=outdir_video + trialname, video_name='cam' + str(cam) + '.mp4')
 
+    # Write list of flagged trials to file
+    with open(idfolder + '/trialsflagged.txt', 'w') as file:
+        for line in trials_flagged:
+            file.write(f"{line}\n")
     # Counter
     end = time.time()
     print('Time to run code: ' + str(end - start) + ' seconds')
