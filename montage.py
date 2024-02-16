@@ -3,6 +3,7 @@ from moviepy.editor import VideoFileClip, clips_array
 import os
 from pathlib import Path
 import time
+import tkinter as tk
 from tkinter import filedialog
 
 # Counter
@@ -10,6 +11,10 @@ start = time.time()
 
 # Define working directory
 wdir = Path(os.getcwd())
+
+# Create a tkinter root window (it won't be displayed)
+root = tk.Tk()
+root.withdraw()
 
 # Open a dialog box to select participant's folder
 idfolder = filedialog.askdirectory(initialdir=str(wdir))

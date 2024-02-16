@@ -5,7 +5,6 @@ import mediapipe as mp
 import numpy as np
 import os
 from pathlib import Path
-import pickle
 import time
 import tkinter as tk
 from tkinter import filedialog
@@ -133,7 +132,7 @@ def run_mediapipe(input_streams, save_images=None):
                     if handedness == 'Left':
                         hand_landmarks_r = results[cam].multi_hand_landmarks[0]
                         hand_landmarks_l = results[cam].multi_hand_landmarks[1]
-                    else:
+                    else:  # Assuming the other is a right hand (reasonable assumption unless multiple people in frame)
                         hand_landmarks_r = results[cam].multi_hand_landmarks[1]
                         hand_landmarks_l = results[cam].multi_hand_landmarks[0]
 
@@ -151,6 +150,17 @@ def run_mediapipe(input_streams, save_images=None):
                     # Append key points
                     kpts_cam_r[cam].append(frame_keypoints_r)
                     kpts_cam_l[cam].append(frame_keypoints_l)
+
+                # In rare circumstances, mediapipe will detect more than max # hands detected (> 2 here).
+                # I fill with blanks to err on safe side and interpolate after since these are rare cases (1 frame in
+                # 1 video out of 1040 recorded videos), and tasks here are quite slow so interpolation works fine.
+                # Alternative #1: Pick from the detected hands.
+                # Alternative #2: Set static_image_mode=True (treats images as sequence of [possibly unrelated] images)
+                # https://stackoverflow.com/questions/76648549/mediapipe-max-num-hands-not-working-properly
+                elif nhands_detected > 2:
+                    print('WARNING: More than 2 hands detected. Frame #: ' + str(framenum) + '; Cam #: ' + str(cam))
+                    kpts_cam_r[cam].append([[-1, -1]] * 21)
+                    kpts_cam_l[cam].append([[-1, -1]] * 21)
 
             else:
                 kpts_cam_r[cam].append([[-1, -1]] * 21)
