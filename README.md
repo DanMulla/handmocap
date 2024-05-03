@@ -9,14 +9,14 @@ https://github.com/DanMulla/handmocap/assets/61323041/80cbae6c-30ce-4f80-b342-47
 
 ## Steps / Functions
 
-Note: A window will open up asking user to select folder which data to analyze for all functions.  This would be /sampledata for the example data given.
+Note: A window will open up asking user to select folder containing data.  This would be the parent folder containing the videos (e.g., /sampledata for example files given).
 
 1. `calibration.py` for intrinsic and extrinsic camera calibration using checkerboard.  With 4 cameras for our resolution and checkerboard, we averaged reprojection errors < 1 pixel.
 2. `labels2d.py` for 2D predictions of hand key points from each camera view.  Annotated images will be saved.
 3. `triangulation.py` for 3D triangulation of hand key points from calibration and 2D label results.  The triangulation will be done for all camera combinations, but the images/videos saved will be for only the full-camera set.
 4. `kinematics.py` to calculate finger joint angles for all camera combinations.
-5. `montage.py` for creating a video montage of the overlaid 2D predictions on the raw videos with the 3D kinematics.
-6. `trigger.py` for synchronizing the kinematics with other hardware using a custom-designed trigger box that flashes an LED while sending an electrical impulse that can be recorded with other systems (e.g., EMG, Forces).  This function will load the first frame of one of the camera views, ask users prompt to select where in the image the LED will flash, and then automatically detect when the trigger was started by identifying the instance where LED turns on.  Trigger settings will need to be adjusted based on your own custom-designed box (e.g., trigger length).
+5. `montage.py` for creating a video montage of the raw videos (with or without 2D predictions overlaid) with the 3D kinematics.
+6. `trigger.py` for synchronizing the kinematics with other hardware using a custom-designed trigger box that flashes an LED while sending an electrical impulse that can be recorded with other systems (e.g., EMG, Forces).  This function will load the first frame of one of the camera views, ask user prompt to select where in the image the LED will flash, and then automatically detect when the trigger was started by identifying the instance where LED turns on.  Trigger settings will need to be adjusted based on your own custom-designed box (e.g., trigger length).
 
 ## Outstanding Issues / Important Considerations
 

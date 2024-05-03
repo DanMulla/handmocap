@@ -28,13 +28,19 @@ processedvideos = idfolder + '/videos_processed/'
 trialfolders = sorted(glob.glob(rawvideos + '*trial*'))
 ntrials = len(trialfolders)
 
+# Use raw or 2D predictions overlaid raw?
+useraw = False
+
 for trial in trialfolders:
 
     # Trial name
     trialname = os.path.basename(trial)
 
     # Obtain raw videos
-    rawvideos = sorted(glob.glob(trial + '/*.mp4'))
+    if useraw is True:
+        rawvideos = sorted(glob.glob(trial + '/*.mp4'))
+    else:
+        rawvideos = sorted(glob.glob(processedvideos + trialname + '/*_refined.mp4'))
     ncams = len(rawvideos)
 
     # Obtain 3D landmark
