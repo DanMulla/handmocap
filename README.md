@@ -1,5 +1,7 @@
 # handmocap
 
+Team: Daanish Mulla, Nigel Majoni, Paul Tilley, Peter Keir
+
 ## Background
 Multi-camera markerless motion capture of the hand and fingers using MediaPipe (Zhang et al. 2020) and Anipose lib (Karashchuk et al. 2021).
 
