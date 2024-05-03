@@ -222,37 +222,52 @@ if __name__ == '__main__':
     idfolder = filedialog.askdirectory(initialdir=str(wdir))
     id = os.path.basename(os.path.normpath(idfolder))
 
-    # Gather 3D hand locations from all trials
-    trialdata = sorted(glob.glob(idfolder + '/landmarks/*3Dlandmarks.npy'))
+    # Grab all folders (3D landmarks from each camera combination)
+    landmarksfolder = glob.glob(idfolder + '/landmarks/3d/*')
 
-    # Output directory for trc files
+    # Create output folder
     outdir_kinematics = idfolder + '/kinematics/'
     if not os.path.exists(outdir_kinematics):
         os.mkdir(outdir_kinematics)
 
-    for trial in trialdata:
+    # Running through each camera combination
+    for folder in landmarksfolder:
 
-        # Identify trial name
-        filename = os.path.basename(trial)
-        fileparts = filename.split('_3Dlandmarks.npy')
-        trialname = fileparts[0]
-        print(trialname)
+        # Identify folder
+        foldername = os.path.basename(folder)
+        print(foldername)
 
-        # Load 3D hand location data and reshape
-        data_3d = np.load(trial)
+        # Create output folder
+        if not os.path.exists(outdir_kinematics + foldername):
+            os.mkdir(outdir_kinematics + foldername)
 
-        # Create .trc file for landmark locations
-        # trcfilename = outdir_trc + trialname + '.trc'
-        # createtrcfile(data_3d, trcfilename, landmarks, fs)
+        # Gather 3D hand locations from all trials
+        trialdata = sorted(glob.glob(folder + '/*3Dlandmarks.npy'))
 
-        # Calculate angles and write to file
-        angles = calc_angles(Model, data_3d)
-        angles.to_csv(outdir_kinematics + trialname + '.csv')
+        # Calculates joint angles for each trial within each folder
+        for trial in trialdata:
 
-        # Calculate segment and phalanx lengths
-        segmentlengths = calc_lengths(Model, data_3d)
-        phalanxlengths = calc_fingerlength(segmentlengths)
-        print(np.mean(phalanxlengths, axis=0))
+            # Identify trial name
+            filename = os.path.basename(trial)
+            fileparts = filename.split('_3Dlandmarks.npy')
+            trialname = fileparts[0]
+            # print(trialname)
+
+            # Load 3D hand location data and reshape
+            data_3d = np.load(trial)
+
+            # Create .trc file for landmark locations
+            # trcfilename = outdir_kinematics + trialname + '.trc'
+            # createtrcfile(data_3d, trcfilename, Model.markers, fs)
+
+            # Calculate angles and write to file
+            angles = calc_angles(Model, data_3d)
+            angles.to_csv(outdir_kinematics + foldername + '/' + trialname + '.csv')
+
+            # Calculate segment and phalanx lengths
+            # segmentlengths = calc_lengths(Model, data_3d)
+            # phalanxlengths = calc_fingerlength(segmentlengths)
+            # print(np.mean(phalanxlengths, axis=0))
 
     # Counter
     end = time.time()

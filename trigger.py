@@ -75,11 +75,12 @@ if __name__ == '__main__':
 
     # Trigger settings
     # threshold set at 10% as LED light was quite small and want to pick up as soon as it lit up
-    # win_size set at 10 frames based on 30 fps and our trigger set to turn on for 500 ms (so, this really could be 15)
+    # win_size set at 8 frames based on 30 fps and our trigger set to turn on for 500 ms
+    # note: anyone in lab using the custom-designed trigger box, led light fades as battery gets old (be cautious and replace!)
     box_area = 100   # Square area (in pixels) centered on trigger led
     box_size = int(np.sqrt(box_area) / 2)
-    threshold = 0.1  # Fraction of pixels lit within box to denote if LED is turned on
-    win_size = 10    # Number of consecutive frames LED turned on
+    threshold = 0.10  # Fraction of pixels lit within box to denote if LED is turned on
+    win_size = 8    # Number of consecutive frames LED turned on
 
     # Storage for trigger results
     trigger_output = {}
@@ -89,7 +90,7 @@ if __name__ == '__main__':
         # Obtain video (only using one angle/camera for each trial)
         trialname = os.path.basename(trial)
         trialvids = sorted(glob.glob(trial + '/*.mp4'))
-        video = trialvids[0]
+        video = trialvids[-1]
 
         # Load capture and get video settings
         cap = cv.VideoCapture(video)
@@ -128,6 +129,7 @@ if __name__ == '__main__':
 
             # Background subtraction based on mixture of gaussians (Subtractor MOG2)
             # Code from here: https://hackmd.io/@lKuOpplzSUWLhLim2Z7ZJw/SkL-qU2Wh#Subtraction-using-Subtractor-MOG2
+            # note: there is some initialization here, so trigger didn't get detected if it was hit within first 1 second of video
             fgmask = bs.apply(frame)
             kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
             fgmask = cv.morphologyEx(fgmask, cv.MORPH_OPEN, kernel)
