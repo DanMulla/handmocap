@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7052a8ba-0996-4162-9133-ef0e3d6a25fd" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kinematics.py" beforeDir="false" afterPath="$PROJECT_DIR$/kinematics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triangulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/triangulation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trigger.py" beforeDir="false" afterPath="$PROJECT_DIR$/trigger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calibrationcheck.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
