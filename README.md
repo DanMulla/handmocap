@@ -5,8 +5,7 @@ Multi-camera markerless motion capture of the hand and fingers using MediaPipe (
 
 Recorded videos are used to track the hand and predict 3D joint locations of 21 key points of the hand.  The code draws on the work by [Temuge Batpurev](https://temugeb.github.io/python/computer_vision/2021/06/27/handpose3d.html), but extending it to work on 2+ cameras.
 
-<video src="https://github.com/DanMulla/handmocap/blob/main/sampledata/videos_processed/trial_pre_index_90/compilation.mp4" width="300" />
-
+<video src="https://github.com/DanMulla/handmocap/blob/main/sampledata/videos_processed/trial_pre_index_90/compilation.mp4"></video>
 ## Steps / Functions
 
 Note: A window will open up asking user to select folder which data to analyze for all functions.  This would be /sampledata for the example data given.
